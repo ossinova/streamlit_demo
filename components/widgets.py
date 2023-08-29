@@ -11,21 +11,16 @@ def toggle():
     color_on = st.toggle('Activate color feature')
     comma_on = st.toggle('Activate comma feature')
 
-    if color_on:
-        st.write('Color feature activated!')
-    if comma_on:
-        st.write('Comma feature activated!')
-
 def file_uploader():
     # File Reader
-    uploaded_files = st.file_uploader("Choose a CSV file", type="xlsx", accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Choose XLSX file(s)", type="xlsx", accept_multiple_files=True)
     return uploaded_files
 
 def file_renderer(uploaded_files):
     uploaded_files.seek(0)
     st.write("Input filename:", uploaded_files.name)
     uploaded_data_read = pd.read_excel(uploaded_files, engine='openpyxl')
-    st.write(uploaded_data_read)
+    #st.write(uploaded_data_read)
     return uploaded_data_read
 
 def progress_bar():
@@ -40,20 +35,28 @@ def file_processing(uploaded_files):
     # File Processing
     st.write("Processing...")
     upload_processed = uploaded_files
-    st.write(upload_processed)
+    upload_processed["TEST"] = "TEST"
+    #st.write(upload_processed)
+    return upload_processed
 
 def file_downloader(my_large_df):
-    # Download Button
-    @st.cache
-    def convert_df(df):
-        # IMPORTANT: Cache the conversion to prevent computation on every rerun
-        return df.to_excel().encode('utf-8')
+    import io
+    # # Download Button
+    # @st.cache_data
+    # def convert_df(df):
+    #     # IMPORTANT: Cache the conversion to prevent computation on every rerun
+    #     return df.to_excel("output.xlsx", engine='openpyxl', index=False)
 
-    csv = convert_df(my_large_df)
+    # xlsx = convert_df(my_large_df)
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        # Write each dataframe to a different worksheet.
+        my_large_df.to_excel(writer, sheet_name='Sheet1')
+        # Close the Pandas Excel writer and output the Excel file to the buffer
 
-    st.download_button(
-        label="Download data as XLSX",
-        data=csv,
-        file_name='large_df.XLSX',
-        mime='text/xlsx',
-    )
+        st.download_button(
+            label="Download data as XLSX",
+            data=buffer,
+            file_name='large_df.XLSX',
+            mime='text/xlsx',
+        )

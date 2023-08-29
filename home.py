@@ -32,8 +32,7 @@ def convert():
     import streamlit as st
     # Site Metadata
     st.title("Upload Example V.1")
-    st.write("Multiple File Uploader")
-
+ 
     # File Reader
     uploads = widgets.file_uploader()
     
@@ -57,11 +56,17 @@ def convert():
     for file in uploads:
         # File Renderer
         input = widgets.file_renderer(file)
+       
+
         # File Processing
         output = widgets.file_processing(input)
 
+        # Data Preview
+        with st.expander('Data preview'):
+            st.write(output.head(10))
+                     
         # File Downloader
-        #widgets.file_downloader(processsd)
+        widgets.file_downloader(my_large_df=output)
 
 def convert_2():
     import streamlit as st
